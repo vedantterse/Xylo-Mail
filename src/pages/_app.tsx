@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useEffect, useState } from "react";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/next";
 
 export default function App({ Component, pageProps }: AppProps) {
   const [isClient, setIsClient] = useState(false);
@@ -38,6 +39,7 @@ export default function App({ Component, pageProps }: AppProps) {
         expand={true}
         visibleToasts={4}
       />
+      <Analytics />
     </>
   );
 }
