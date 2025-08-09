@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { AnimatedBackground } from '@/components/AnimatedBackground';
 import { EmailFileSharing } from '@/components/EmailFileSharing';
 import Balatro from "@/components/ui/Balatro/Balatro";
-// import dynamic from 'next/dynamic'
+// // import dynamic from 'next/dynamic'
 // import TextCursor from '@/components/ui/TextCursor/TextCursor';
-// import SplashCursor from "@/components/ui/SplashCursor/SplashCursor";
+import SplashCursor from "@/components/ui/SplashCursor/SplashCursor";
 
 // Dynamically import components that use browser APIs
 // const MainApp = dynamic(() => import('@/components/MainApp'), { 
@@ -31,7 +31,7 @@ const Index = () => {
   return (
     <div className="min-h-screen relative w-full overflow-hidden flex flex-col">
       {/* <TextCursor text="💵"/> */}
-      {/* <SplashCursor /> */}
+      <SplashCursor />
       {/* Background elements */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 z-0">
