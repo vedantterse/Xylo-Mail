@@ -53,15 +53,20 @@ export const EmailChips: React.FC<EmailChipsProps> = ({ emails, onEmailsChange, 
   }, [inputValue, emails, maxEmails]);
 
   useEffect(() => {
+    if (inputValue.length > 0) {
+      setIsDropdownOpen(true);
+    }
+  }, [inputValue]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
     };
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
@@ -76,12 +81,21 @@ export const EmailChips: React.FC<EmailChipsProps> = ({ emails, onEmailsChange, 
           onClick={() => emails.length > 0 && setIsDropdownOpen(!isDropdownOpen)}
         >
           {emails.length} / {maxEmails}
-          {emails.length > 0 && <ChevronDown size={14} className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />}
+          {emails.length > 0 && (
+            <ChevronDown 
+              size={14} 
+              className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} 
+            />
+          )}
         </div>
       </div>
+      
       <div 
         className="glass p-2 rounded-lg flex flex-wrap gap-2 items-center cursor-text"
-        onClick={() => inputRef.current?.focus()}
+        onClick={() => {
+          inputRef.current?.focus();
+          setIsDropdownOpen(true);
+        }}
       >
         <div className="relative flex-grow min-w-[150px]">
           <input

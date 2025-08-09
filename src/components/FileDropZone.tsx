@@ -12,15 +12,30 @@ interface FileItem {
 interface FileDropZoneProps {
   files: FileItem[];
   onFilesChange: (files: FileItem[]) => void;
-  onFileValidation?: (file: File) => boolean;
+  onFileValidation: (file: File) => boolean;
+  maxTotalSize?: number; // New prop
 }
 
 export const FileDropZone: React.FC<FileDropZoneProps> = ({
   files,
   onFilesChange,
-  // onFileValidation is kept for API compatibility but marked as unused
+  onFileValidation,
+  maxTotalSize = 4.5 * 1024 * 1024 // 4.5MB default
 }) => {
   const [error, setError] = useState<string>('');
+
+  const calculateTotalSize = (currentFiles: FileItem[], newFiles?: File[]): number => {
+    const existingSize = currentFiles.reduce((sum, item) => sum + item.file.size, 0);
+    const newSize = newFiles?.reduce((sum, file) => sum + file.size, 0) || 0;
+    return existingSize + newSize;
+  };
+
+  const isDuplicateFile = useCallback((newFile: File) => {
+    return files.some(existingFile => 
+      existingFile.file.name === newFile.name && 
+      existingFile.file.size === newFile.size
+    );
+  }, [files]);
 
   const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[]) => {
     setError('');
@@ -34,19 +49,77 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
           duration: 4000,
         });
       } else if (rejection.errors[0]?.code === 'file-invalid-type') {
-        setError('Invalid file type. Please upload PDF, DOC, IMG, or ZIP files.');
+        setError('Invalid file type. Please upload PDF, DOC, IMG, TXT, or ZIP files.');
       }
       return;
     }
 
-    // Add new files
-    const newFiles: FileItem[] = acceptedFiles.map(file => ({
-      file,
-      id: Math.random().toString(36).substr(2, 9)
-    }));
+    const newFiles = [...files];
+    let hasRejections = false;
 
-    onFilesChange([...files, ...newFiles]);
-  }, [files, onFilesChange]);
+    // Process each file individually
+    acceptedFiles.forEach(file => {
+      // First check individual file size
+      if (file.size > maxTotalSize) {
+        toast.error(`File "${file.name}" exceeds 4.5MB limit`, {
+          description: "Individual file size cannot exceed 4.5MB",
+          duration: 3000,
+        });
+        hasRejections = true;
+        return; // Skip this file
+      }
+
+      // Check for duplicates
+      if (isDuplicateFile(file)) {
+        toast.warning(`File "${file.name}" already added`, {
+          description: "Duplicate files are not allowed",
+          duration: 3000,
+        });
+        hasRejections = true;
+        return; // Skip this file
+      }
+
+      // Calculate total size including this file
+      const potentialTotalSize = newFiles.reduce((sum, item) => sum + item.file.size, 0) + file.size;
+
+      // Check if adding this file would exceed total limit
+      if (potentialTotalSize > maxTotalSize) {
+        toast.error(`Cannot add "${file.name}"`, {
+          description: "Adding this file would exceed the total size limit",
+          duration: 3000,
+        });
+        hasRejections = true;
+        return; // Skip this file
+      }
+
+      // If all checks pass, add the file
+      if (onFileValidation(file)) {
+        newFiles.push({
+          file,
+          id: crypto.randomUUID()
+        });
+      }
+    });
+
+    // Update files state with all valid files
+    if (newFiles.length > files.length) {
+      onFilesChange(newFiles);
+      
+      // Show success message if some files were added (even if others were rejected)
+      if (hasRejections) {
+        toast.info('Some files were added', {
+          description: 'Files that fit within limits were uploaded successfully',
+          duration: 3000,
+        });
+      }
+    } else if (hasRejections && newFiles.length === files.length) {
+      // Show message if all files were rejected
+      toast.error('No files were added', {
+        description: 'All selected files were rejected due to size limits or duplicates',
+        duration: 3000,
+      });
+    }
+  }, [files, onFilesChange, onFileValidation, maxTotalSize, isDuplicateFile]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -67,6 +140,10 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
     onFilesChange(files.filter(f => f.id !== fileId));
   };
 
+  const totalSize = calculateTotalSize(files);
+  const remainingSize = maxTotalSize - totalSize;
+  const isAtLimit = remainingSize <= 0;
+
   return (
     <div className="space-y-1.5">
       <label className="text-sm font-medium text-foreground flex items-center gap-2">
@@ -81,7 +158,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
         {...getRootProps()}
         className={`drop-zone rounded-lg p-3 min-h-[100px] flex flex-col items-center justify-center transition-all ${
           isDragActive ? 'drag-over' : ''
-        }`}
+        } ${isAtLimit ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         <input {...getInputProps()} />
 
@@ -126,6 +203,18 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
               </p>
             </div>
           </div>
+        )}
+      </div>
+
+      {/* Size indicator */}
+      <div className="text-xs text-white/70 flex justify-between items-center px-2">
+        <span>
+          Total: {(totalSize / (1024 * 1024)).toFixed(1)}MB / {(maxTotalSize / (1024 * 1024)).toFixed(1)}MB
+        </span>
+        {isAtLimit ? (
+          <span className="text-red-400">No space remaining</span>
+        ) : (
+          <span>Remaining: {(remainingSize / (1024 * 1024)).toFixed(1)}MB</span>
         )}
       </div>
 
