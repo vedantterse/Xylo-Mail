@@ -464,6 +464,37 @@ All colors MUST be HSL.
     font-weight: 600 !important;
     font-size: 14px !important;
   }
+
+  /* Info HoverCard animations */
+  [data-hover-card-content][data-state="open"] {
+    animation: hoverCardFadeIn 200ms ease-out;
+  }
+
+  [data-hover-card-content][data-state="closed"] {
+    animation: hoverCardFadeOut 150ms ease-in;
+  }
+
+  @keyframes hoverCardFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes hoverCardFadeOut {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+  }
 }
 
 @keyframes float-1 {

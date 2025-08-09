@@ -1,30 +1,25 @@
-# XyloMail - Secure & Anonymous File Sharing
+# XyloMail - Secure & Anonymous File Transfer
 
 <p align="center">
   <img src="./public/image.png" alt="XyloMail Logo">
 </p>
 
 <p align="center">
-  A fun, privacy-focused web app for sending files without logging into personal accounts on public computers.
+  Simple email-based file transfer service - perfect for public computers.
 </p>
 
----
+## What it does
 
-## The Motive
+XyloMail lets you:
 
-In many college or public computer labs, students often need to send files to themselves. The common practice is to log into personal email or social media accounts on these shared machines, which poses a significant security risk if they forget to log out.
+-   Upload files (up to 4.5MB)
+-   Send them to any email address
+-   No sign-in required
+-   Files delivered as ZIP archives
 
-**XyloMail** was created as a fun project to solve this specific problem. It provides a quick, secure, and anonymous way to email files to yourself or others without ever needing to log in, bridging the security gap in a simple and elegant way.
+## Why use it?
 
-## Features
-
--   **Anonymous Sending**: No login or personal account required.
--   **Secure File Transfer**: Sends files as a compressed `.zip` archive.
--   **Multiple Recipients**: Send files to up to 5 email addresses at once.
--   **Rich Interactive UI**: Features beautiful, dynamic WebGL backgrounds and smooth animations.
--   **Responsive Design**: A great user experience on both desktop and mobile devices.
--   **Email Service Fallback**: Uses Brevo for robust email delivery, with an SMTP fallback mechanism.
--   **Instant Feedback**: Real-time toast notifications for success, warnings, and errors.
+Perfect for when you need to send files from a public/shared computer without logging into your personal email account.
 
 ## Tech Stack
 
